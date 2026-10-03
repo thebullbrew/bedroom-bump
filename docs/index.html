@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bedroom Bump — Student-Rental Expansion Underwriter</title>
+<meta name="description" content="Underwrite a student rental both ways: as-is vs. converted bedrooms. Find what each new bedroom is worth and the most you can pay to build it.">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#1F3522">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<style>
+:root{
+  --green:#1F3522; --ivory:#F5F2E8; --gold:#B49A5B;
+  --oxblood:#5C2A2A; --charcoal:#2C2C2C; --paper:#FBF9F1;
+  --line:#D8CFB8;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Georgia,'Times New Roman',serif;background:var(--ivory);color:var(--charcoal);line-height:1.55}
+.sans,button,input,select{font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif}
+header.hero{background:linear-gradient(160deg,#1F3522 0%,#16281a 60%,#2C2C2C 100%);color:var(--ivory);padding:2.6rem 1.25rem 2.2rem;text-align:center;border-bottom:4px solid var(--gold)}
+header.hero .kicker{color:var(--gold);letter-spacing:.28em;text-transform:uppercase;font-size:.72rem;margin-bottom:.6rem}
+header.hero h1{margin:.2rem 0 .5rem;font-size:2.3rem;letter-spacing:.02em;font-weight:700}
+header.hero h1 .amp{color:var(--gold)}
+header.hero p{max-width:640px;margin:.6rem auto 0;font-size:1.02rem;color:#EDE6D2;font-style:italic}
+.wrap{max-width:1060px;margin:0 auto;padding:1.5rem 1.25rem 3rem}
+.method{background:var(--paper);border:1px solid var(--line);border-left:5px solid var(--oxblood);padding:1.1rem 1.3rem;margin:1.6rem 0;border-radius:2px}
+.method h2{margin:0 0 .4rem;font-size:1.15rem;color:var(--oxblood)}
+.method p{margin:.45rem 0;font-size:.98rem}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:1rem;margin:1.2rem 0}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:3px;padding:1.1rem 1.2rem;box-shadow:0 1px 0 rgba(31,53,34,.08)}
+.card h3{margin:0 0 .2rem;font-size:1.05rem;color:var(--green);border-bottom:2px solid var(--gold);padding-bottom:.45rem}
+.card .sub{font-size:.82rem;color:#6d6455;margin:0 0 .7rem;font-style:italic}
+.field{margin:.55rem 0}
+.field label{display:block;font-size:.82rem;font-weight:600;color:#4a4438;margin-bottom:.2rem}
+.field input{width:100%;padding:.55rem .65rem;font-size:1rem;border:1px solid var(--line);border-radius:3px;background:#fff;color:var(--charcoal)}
+.field input:focus{outline:2px solid var(--gold);border-color:var(--gold)}
+.field .hint{font-size:.75rem;color:#8a8172;margin-top:.15rem}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:.7rem}
+.verdict{border-radius:3px;padding:1.4rem 1.5rem;margin:1.6rem 0 1rem;color:var(--ivory);border:3px solid var(--gold)}
+.verdict h2{margin:0 0 .3rem;font-size:1.7rem}
+.verdict p.lede{margin:.2rem 0 1rem;font-size:1.02rem;color:#F0EAD6;font-style:italic}
+.verdict.go{background:linear-gradient(150deg,#1F3522,#2c4a30)}
+.verdict.meh{background:linear-gradient(150deg,#4a3a1e,#5C2A2A)}
+.verdict.no{background:linear-gradient(150deg,#4a2323,#2C2C2C)}
+.chips{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.7rem}
+.chip{background:rgba(245,242,232,.1);border:1px solid rgba(180,154,91,.55);border-radius:3px;padding:.7rem .8rem}
+.chip .v{font-size:1.35rem;font-weight:700;color:#fff}
+.chip .l{font-size:.76rem;color:var(--gold);text-transform:uppercase;letter-spacing:.08em}
+.budget{background:var(--paper);border:2px dashed var(--gold);border-radius:3px;padding:1.2rem 1.4rem;margin:1rem 0}
+.budget h3{margin:0 0 .4rem;color:var(--green);font-size:1.15rem}
+.budget .big{font-size:2rem;font-weight:700;color:var(--oxblood)}
+.budget p{margin:.4rem 0}
+table.cmp{width:100%;border-collapse:collapse;margin:1rem 0;background:var(--paper);font-size:.95rem}
+table.cmp th,table.cmp td{padding:.55rem .7rem;border-bottom:1px solid var(--line);text-align:right}
+table.cmp th:first-child,table.cmp td:first-child{text-align:left}
+table.cmp thead th{background:var(--green);color:var(--ivory);font-size:.85rem;letter-spacing:.04em}
+table.cmp thead th:first-child{border-radius:3px 0 0 0}
+table.cmp thead th:last-child{border-radius:0 3px 0 0}
+table.cmp td.delta-pos{color:#1F5C2A;font-weight:700}
+table.cmp td.delta-neg{color:var(--oxblood);font-weight:700}
+table.cmp tr.section td{background:#EFE8D4;font-weight:700;color:var(--green);text-align:left;letter-spacing:.03em}
+.chart{background:var(--paper);border:1px solid var(--line);border-radius:3px;padding:1.2rem 1.4rem;margin:1rem 0}
+.chart h3{margin:0 0 .8rem;color:var(--green);font-size:1.1rem}
+.bargroup{margin-bottom:1rem}
+.bargroup .bl{font-size:.85rem;font-weight:700;color:#4a4438;margin-bottom:.3rem}
+.bar-row{display:flex;align-items:center;gap:.6rem;margin:.3rem 0}
+.bar-tag{width:86px;font-size:.8rem;color:#6d6455;text-align:right;flex-shrink:0}
+.bar{height:26px;border-radius:2px;min-width:3px;transition:width .3s}
+.bar.a{background:var(--gold)}
+.bar.b{background:var(--green)}
+.bar-val{font-size:.85rem;font-weight:700;color:var(--charcoal);white-space:nowrap}
+details.how{background:var(--paper);border:1px solid var(--line);border-radius:3px;padding:1rem 1.3rem;margin:1.2rem 0}
+details.how summary{cursor:pointer;font-weight:700;color:var(--green);font-size:1.02rem}
+details.how li{margin:.35rem 0;font-size:.93rem}
+.saved{background:var(--paper);border:1px solid var(--line);border-radius:3px;padding:1.1rem 1.3rem;margin:1.2rem 0}
+.saved h3{margin:0 0 .6rem;color:var(--green)}
+.save-row{display:flex;gap:.6rem;flex-wrap:wrap;margin-bottom:.8rem}
+.save-row input{flex:1;min-width:180px;padding:.55rem .65rem;font-size:1rem;border:1px solid var(--line);border-radius:3px}
+button{cursor:pointer;border:none;border-radius:3px;padding:.6rem 1.1rem;font-size:.95rem;font-weight:700;letter-spacing:.02em}
+.btn-gold{background:var(--gold);color:var(--green)}
+.btn-gold:hover{background:#c4a968}
+.btn-green{background:var(--green);color:var(--ivory)}
+.btn-green:hover{background:#2b4a30}
+.btn-ghost{background:transparent;color:var(--oxblood);border:1px solid var(--oxblood);padding:.4rem .8rem;font-size:.82rem}
+.btn-ghost:hover{background:var(--oxblood);color:var(--ivory)}
+.scen{display:flex;justify-content:space-between;align-items:center;gap:.6rem;padding:.55rem .2rem;border-bottom:1px solid var(--line)}
+.scen .nm{font-weight:700}
+.scen .dt{font-size:.78rem;color:#8a8172}
+.scen .acts{display:flex;gap:.4rem}
+footer{margin-top:2.5rem;padding-top:1.2rem;border-top:2px solid var(--gold);font-size:.82rem;color:#6d6455;text-align:center}
+footer .fine{font-style:italic;margin-top:.4rem}
+.warnline{background:#F3E9CF;border:1px solid var(--gold);border-left:5px solid var(--gold);padding:.8rem 1rem;margin:1rem 0;font-size:.92rem;border-radius:2px}
+@media(max-width:640px){
+  header.hero h1{font-size:1.75rem}
+  table.cmp{font-size:.82rem}
+  table.cmp th,table.cmp td{padding:.4rem .45rem}
+  .bar-tag{width:64px}
+}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="kicker sans">The Bull Brew &middot; Daily Tool No. 5</div>
+  <h1>Bedroom <span class="amp">Bump</span></h1>
+  <p>The student-rental expansion underwriter. Underwrite it both ways — as-is vs. converted — and find out what each new bedroom is really worth.</p>
+</header>
+<div class="wrap">
+
+  <div class="method">
+    <h2>The method</h2>
+    <p>Student houses don't rent by the house. They rent <strong>by the bedroom</strong>. A 3-bed with room for 3 more is a 6-bed wearing a costume — and the costume is where the money hides.</p>
+    <p>The discipline: <strong>always underwrite both scenarios</strong> — what it cash-flows today, and what it cash-flows with the bedrooms added. If the conversion math doesn't clear your hurdle, you don't have a value-add. You have a fantasy.</p>
+    <p style="margin-bottom:0"><em>One warning, and it's non-negotiable: bedroom count on paper is a guess until you walk the layout, confirm the egress, and check what the town allows. Underwrite both ways anyway. That's the job.</em></p>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <h3>The Deal</h3>
+      <p class="sub">What you're buying, before bedrooms enter the chat.</p>
+      <div class="field"><label for="price">Purchase price ($)</label><input id="price" type="number" min="0" step="1000" value="300000"></div>
+      <div class="field"><label for="rehab">Rehab estimate ($) <span class="hint">— base reno, before any bedroom conversion</span></label><input id="rehab" type="number" min="0" step="500" value="20000"></div>
+      <div class="field"><label for="closing">Closing costs ($)</label><input id="closing" type="number" min="0" step="500" value="10000"></div>
+    </div>
+
+    <div class="card">
+      <h3>Scenario A — As-Is</h3>
+      <p class="sub">The house exactly as it sits today.</p>
+      <div class="field"><label for="bedsA">Bedrooms (current)</label><input id="bedsA" type="number" min="1" step="1" value="3"></div>
+      <div class="field"><label for="rentA">Rent per bedroom / month ($)</label><input id="rentA" type="number" min="0" step="25" value="950"></div>
+      <div class="field"><label for="vacA">Vacancy rate (%)</label><input id="vacA" type="number" min="0" max="100" step="1" value="8"></div>
+    </div>
+
+    <div class="card">
+      <h3>Scenario B — Converted</h3>
+      <p class="sub">The house after you carve out the extra bedrooms.</p>
+      <div class="field"><label for="bedsB">Bedrooms ADDED</label><input id="bedsB" type="number" min="0" step="1" value="3"></div>
+      <div class="field"><label for="convCost">Total conversion cost ($)</label><input id="convCost" type="number" min="0" step="500" value="15000"><div class="hint">Framing, drywall, doors, closets, egress windows, permits — the whole job.</div></div>
+      <div class="row2">
+        <div class="field"><label for="rentB">Rent / new bed / mo ($)</label><input id="rentB" type="number" min="0" step="25" value="925"></div>
+        <div class="field"><label for="vacB">Vacancy (%)</label><input id="vacB" type="number" min="0" max="100" step="1" value="8"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Financing</h3>
+      <p class="sub">The money behind the deal.</p>
+      <div class="row2">
+        <div class="field"><label for="downPct">Down payment (%)</label><input id="downPct" type="number" min="0" max="100" step="1" value="25"></div>
+        <div class="field"><label for="rate">Rate (APR %)</label><input id="rate" type="number" min="0" max="20" step="0.125" value="7"></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label for="termYrs">Term (years)</label><input id="termYrs" type="number" min="1" max="40" step="1" value="30"></div>
+        <div class="field"><label for="hurdle">Your CoC hurdle (%)</label><input id="hurdle" type="number" min="1" max="50" step="0.5" value="10"><div class="hint">The return that makes you get out of bed.</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Operating</h3>
+      <p class="sub">The costs that never take a day off.</p>
+      <div class="row2">
+        <div class="field"><label for="taxes">Taxes / yr ($)</label><input id="taxes" type="number" min="0" step="100" value="8500"></div>
+        <div class="field"><label for="insurance">Insurance / yr ($)</label><input id="insurance" type="number" min="0" step="100" value="2200"></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label for="mgmtPct">Management (% of gross)</label><input id="mgmtPct" type="number" min="0" max="30" step="0.5" value="8"></div>
+        <div class="field"><label for="maintPct">Maintenance (% of gross)</label><input id="maintPct" type="number" min="0" max="30" step="0.5" value="8"></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label for="capex">CapEx reserve / yr ($)</label><input id="capex" type="number" min="0" step="100" value="2500"></div>
+        <div class="field"><label for="utils">Landlord utilities / mo ($)</label><input id="utils" type="number" min="0" step="25" value="200"><div class="hint">Water, sewer, trash — the student-rental classics.</div></div>
+      </div>
+      <div class="field"><label for="other">Other / yr ($)</label><input id="other" type="number" min="0" step="100" value="0"></div>
+    </div>
+
+    <div class="card">
+      <h3>Run It</h3>
+      <p class="sub">Every number above recalculates live. Save the deals worth remembering.</p>
+      <div class="save-row" style="margin-top:.4rem">
+        <button class="btn-green sans" id="resetBtn" type="button">Reset defaults</button>
+      </div>
+      <p style="font-size:.85rem;color:#6d6455">Tip: nudge the <strong>conversion cost</strong> up and watch the verdict flip. That's the whole game — knowing the price where the bedroom stops paying for itself.</p>
+    </div>
+  </div>
+
+  <div class="verdict go" id="verdict">
+    <h2 id="verdictTitle">Run the numbers.</h2>
+    <p class="lede" id="verdictLede">Fill in the deal above — the verdict lands here.</p>
+    <div class="chips">
+      <div class="chip"><div class="v" id="chipBeds">–</div><div class="l sans">Bedrooms added</div></div>
+      <div class="chip"><div class="v" id="chipLift">–</div><div class="l sans">Monthly cash-flow lift</div></div>
+      <div class="chip"><div class="v" id="chipCoC">–</div><div class="l sans">Cash-on-cash: as-is → converted</div></div>
+      <div class="chip"><div class="v" id="chipPayback">–</div><div class="l sans">Conversion payback</div></div>
+    </div>
+  </div>
+
+  <div class="budget" id="budgetCard">
+    <h3>Your ceiling: max conversion budget</h3>
+    <p>To still clear your <strong id="hurdleEcho">10%</strong> cash-on-cash hurdle after the work is done, the conversion must cost no more than</p>
+    <div class="big sans" id="maxConv">$–</div>
+    <p id="maxConvPer">–</p>
+    <p style="font-size:.9rem;color:#6d6455"><em>This is the number to carry into the contractor walkthrough. Above it, the new bedrooms are charity work.</em></p>
+  </div>
+
+  <div class="chart">
+    <h3>Side by side</h3>
+    <div class="bargroup">
+      <div class="bl sans">Monthly cash flow</div>
+      <div class="bar-row"><div class="bar-tag sans">As-is</div><div class="bar a" id="barCfA"></div><div class="bar-val sans" id="valCfA"></div></div>
+      <div class="bar-row"><div class="bar-tag sans">Converted</div><div class="bar b" id="barCfB"></div><div class="bar-val sans" id="valCfB"></div></div>
+    </div>
+    <div class="bargroup">
+      <div class="bl sans">Cash-on-cash return</div>
+      <div class="bar-row"><div class="bar-tag sans">As-is</div><div class="bar a" id="barCoCA"></div><div class="bar-val sans" id="valCoCA"></div></div>
+      <div class="bar-row"><div class="bar-tag sans">Converted</div><div class="bar b" id="barCoCB"></div><div class="bar-val sans" id="valCoCB"></div></div>
+    </div>
+  </div>
+
+  <table class="cmp sans" id="cmpTable">
+    <thead><tr><th style="text-align:left">Line item</th><th>As-is</th><th>Converted</th><th>&Delta;</th></tr></thead>
+    <tbody id="cmpBody"></tbody>
+  </table>
+
+  <details class="how">
+    <summary>How the math works (no black boxes)</summary>
+    <ul>
+      <li><strong>Gross rent</strong> = bedrooms &times; rent per bedroom &times; 12. Student rentals are priced per bed — the house is just the container.</li>
+      <li><strong>Effective gross</strong> = gross rent &times; (1 &minus; vacancy).</li>
+      <li><strong>Operating expenses</strong> = taxes + insurance + (management % + maintenance %) of gross rent + CapEx reserve + landlord utilities &times; 12 + other.</li>
+      <li><strong>NOI</strong> = effective gross &minus; operating expenses.</li>
+      <li><strong>Debt service</strong> = amortized P&amp;I on (price &minus; down payment) at your rate and term. Rehab and conversion are assumed cash — lenders rarely fund your drywall dreams.</li>
+      <li><strong>Cash flow</strong> = NOI &minus; debt service. <strong>Cash-on-cash</strong> = cash flow &divide; total cash invested (down payment + rehab + conversion + closing).</li>
+      <li><strong>Cap rate</strong> = NOI &divide; all-in cost. <strong>DSCR</strong> = NOI &divide; debt service.</li>
+      <li><strong>Max conversion budget</strong> solves for the conversion cost <em>C</em> where (cash flow<sub>A</sub> + &Delta;NOI) &divide; (cash<sub>A</sub> + <em>C</em>) = your hurdle. Pay more than that and the expansion drags you below the return you demand.</li>
+      <li><strong>Conversion payback</strong> = conversion cost &divide; monthly cash-flow lift. How many months of extra rent it takes to earn the construction back.</li>
+    </ul>
+  </details>
+
+  <div class="warnline"><strong>Before you fall in love with the bedroom count:</strong> confirm the layout in person, confirm legal egress for every sleeping room, and confirm the town's occupancy and zoning rules. A bedroom the code won't recognize is just an expensive closet.</div>
+
+  <div class="saved">
+    <h3>Saved deals</h3>
+    <div class="save-row">
+      <input id="scenName" type="text" placeholder="Name this deal — e.g. 'Maple Ave 3→6'" maxlength="60">
+      <button class="btn-gold sans" id="saveBtn" type="button">Save deal</button>
+    </div>
+    <div id="scenList"><p style="font-size:.88rem;color:#8a8172;margin:.3rem 0">No saved deals yet. When a property pencils out, park it here.</p></div>
+  </div>
+
+  <footer>
+    <div>Built by <strong>The Bull Brew</strong> &middot; one useful tool, every day.</div>
+    <div class="fine">Educational estimates only — verify every number yourself. Not financial advice, not a contractor quote, not a zoning opinion.</div>
+  </footer>
+</div>
+<script>
+"use strict";
+if("serviceWorker" in navigator){navigator.serviceWorker.register("sw.js").catch(function(){});}
+var FIELDS=["price","rehab","closing","bedsA","rentA","vacA","bedsB","convCost","rentB","vacB","downPct","rate","termYrs","hurdle","taxes","insurance","mgmtPct","maintPct","capex","utils","other"];
+function num(id){var v=parseFloat(document.getElementById(id).value);return isFinite(v)?v:0;}
+function $(id){return document.getElementById(id);}
+function money(x){var neg=x<0;x=Math.abs(Math.round(x));return (neg?"-$":"$")+x.toLocaleString("en-US");}
+function signedMoney(x){return (x>=0?"+":"−")+money(x).replace("-","");}
+function pct(x,d){if(d===undefined)d=1;return (x*100).toFixed(d)+"%";}
+function pmt(annualRate,years,principal){
+  if(principal<=0)return 0;
+  var r=annualRate/100/12,n=Math.max(1,Math.round(years*12));
+  if(r<=0)return principal/n;
+  var f=Math.pow(1+r,n);
+  return principal*r*f/(f-1);
+}
+function calcScenario(beds,rentBed,vacPct,conv){
+  var price=num("price"),rehab=num("rehab"),closing=num("closing");
+  var downPct=num("downPct"),rate=num("rate"),term=num("termYrs");
+  var down=price*downPct/100;
+  var loan=Math.max(0,price-down);
+  var ds=pmt(rate,term,loan)*12;
+  var allIn=price+rehab+conv+closing;
+  var cash=down+rehab+conv+closing;
+  var gross=beds*rentBed*12;
+  var egi=gross*(1-vacPct/100);
+  var opex=num("taxes")+num("insurance")
+    +gross*(num("mgmtPct")+num("maintPct"))/100
+    +num("capex")+num("utils")*12+num("other");
+  var noi=egi-opex;
+  var cf=noi-ds;
+  return {beds:beds,rentBed:rentBed,price:price,rehab:rehab,conv:conv,closing:closing,
+    allIn:allIn,cash:cash,gross:gross,egi:egi,opex:opex,noi:noi,ds:ds,
+    cf:cf,cfmo:cf/12,coc:cash>0?cf/cash:0,cap:allIn>0?noi/allIn:0,
+    dscr:ds>0?noi/ds:(noi>0?Infinity:0)};
+}
+function verdictFor(A,B,convCost,hurdle,bedsAdded,lift){
+  var v=$("verdict");
+  v.className="verdict";
+  if(bedsAdded<=0){
+    v.classList.add("meh");
+    return {t:"Add at least one bedroom.",l:"Scenario B is identical to Scenario A right now. Tell the tool how many bedrooms the conversion creates."};
+  }
+  if(lift<=0){
+    v.classList.add("no");
+    return {t:"Don't bump it.",l:"The converted version cash-flows worse than the house as-is. The extra bedrooms are dead weight at these rents — buy it as-is, or walk."};
+  }
+  var payback=convCost/lift;
+  if(B.coc>=hurdle/100&&payback<=24){
+    v.classList.add("go");
+    return {t:"Bump it.",l:"The conversion clears your hurdle and pays for itself in "+Math.round(payback)+" months. This is exactly the bedroom arbitrage the tool was built to find."};
+  }
+  if(B.coc>=hurdle/100&&payback<=48){
+    v.classList.add("meh");
+    return {t:"It works — slowly.",l:"The converted deal clears your "+hurdle+"% hurdle, but the conversion takes "+Math.round(payback)+" months to earn itself back. Fine if you're holding long; painful if you're not."};
+  }
+  v.classList.add("no");
+  return {t:"The math says no.",l:"The converted version misses your "+hurdle+"% hurdle or the payback stretches past 4 years. The bedrooms don't justify the construction — underwrite it as-is."};
+}
+function row(label,a,b,fmt,isSection){
+  var d=b-a;
+  var cls=isSection?"section":"";
+  var dh=isSection?"":(Math.abs(d)<0.005?"":(d>0?"delta-pos":"delta-neg"));
+  var da=isSection?"":fmt(a),db=isSection?"":fmt(b),dd=isSection?"":(Math.abs(d)<0.005?"—":fmt(d));
+  if(!isSection&&fmt===signedMoney){dd=(d>=0?"+":"−")+money(d).replace("-","");}
+  return '<tr class="'+cls+'"><td>'+label+'</td><td>'+da+'</td><td>'+db+'</td><td class="'+dh+'">'+dd+'</td></tr>';
+}
+function render(){
+  var bedsA=Math.max(1,Math.round(num("bedsA")));
+  var bedsAdded=Math.max(0,Math.round(num("bedsB")));
+  var convCost=Math.max(0,num("convCost"));
+  var hurdle=num("hurdle");
+  var A=calcScenario(bedsA,num("rentA"),num("vacA"),0);
+  var B=calcScenario(bedsA+bedsAdded,num("rentB"),num("vacB"),convCost);
+  var lift=B.cfmo-A.cfmo;
+  var payback=lift>0?convCost/lift:Infinity;
+  // verdict
+  var vd=verdictFor(A,B,convCost,hurdle,bedsAdded,lift);
+  $("verdictTitle").textContent=vd.t;
+  $("verdictLede").textContent=vd.l;
+  $("chipBeds").textContent=bedsAdded>0?("+"+bedsAdded+"  ("+bedsA+" → "+(bedsA+bedsAdded)+")"):"—";
+  $("chipLift").textContent=signedMoney(lift)+"/mo";
+  $("chipCoC").textContent=pct(A.coc)+" → "+pct(B.coc);
+  $("chipPayback").textContent=isFinite(payback)?Math.round(payback)+" mo":"—";
+  // max conversion budget: solve (cfA + dNOI) / (cashA + C) = hurdle
+  var h=hurdle/100;
+  $("hurdleEcho").textContent=hurdle+"%";
+  var dNOI=B.noi-A.noi; // independent of convCost (conversion is cash-funded)
+  var maxC=(h>0)?(A.cf+dNOI-h*A.cash)/h:NaN;
+  if(!isFinite(maxC)||maxC<=0){
+    $("maxConv").textContent="Not even free.";
+    $("maxConvPer").textContent="At a "+hurdle+"% hurdle, no conversion price makes this expansion work — the rent lift can't carry the bedrooms.";
+  }else{
+    $("maxConv").textContent=money(maxC);
+    var per=bedsAdded>0?maxC/bedsAdded:NaN;
+    $("maxConvPer").innerHTML="That's <strong>"+money(per)+"</strong> per new bedroom across "+bedsAdded+" added bed"+(bedsAdded===1?"":"s")+"."+
+      (convCost<=maxC?" Your "+money(convCost)+" quote sits <strong style='color:#1F5C2A'>"+money(maxC-convCost)+" under</strong> the ceiling."
+                     :" Your "+money(convCost)+" quote sits <strong style='color:#5C2A2A'>"+money(convCost-maxC)+" over</strong> the ceiling — negotiate it down or shrink the scope.");
+  }
+  // bars
+  function bar(id,valId,v,maxV,fmt){
+    var w=maxV>0?Math.max(2,(v/maxV)*100):2;
+    $(id).style.width=Math.min(100,w)+"%";
+    $(valId).textContent=fmt(v);
+  }
+  var cfMax=Math.max(A.cfmo,B.cfmo,1);
+  bar("barCfA","valCfA",Math.max(0,A.cfmo),cfMax,money);
+  bar("barCfB","valCfB",Math.max(0,B.cfmo),cfMax,money);
+  var cocMax=Math.max(A.coc,B.coc,0.001);
+  bar("barCoCA","valCoCA",Math.max(0,A.coc),cocMax,function(x){return pct(x);});
+  bar("barCoCB","valCoCB",Math.max(0,B.coc),cocMax,function(x){return pct(x);});
+  // table
+  var t="";
+  t+=row("PURCHASE & BUILD",0,0,money,true);
+  t+=row("Purchase price",A.price,B.price,money);
+  t+=row("Rehab (base)",A.rehab,B.rehab,money);
+  t+=row("Bedroom conversion",A.conv,B.conv,money);
+  t+=row("Closing costs",A.closing,B.closing,money);
+  t+=row("All-in cost",A.allIn,B.allIn,money);
+  t+=row("Cash invested",A.cash,B.cash,money);
+  t+=row("INCOME",0,0,money,true);
+  t+=row("Bedrooms",A.beds,B.beds,function(x){return x;});
+  t+=row("Gross annual rent",A.gross,B.gross,money);
+  t+=row("Effective gross (after vacancy)",A.egi,B.egi,money);
+  t+=row("Operating expenses",A.opex,B.opex,money);
+  t+=row("Net operating income",A.noi,B.noi,money);
+  t+=row("FINANCING & RETURN",0,0,money,true);
+  t+=row("Debt service (P&I / yr)",A.ds,B.ds,money);
+  t+=row("Cash flow / year",A.cf,B.cf,signedMoney);
+  t+=row("Cash flow / month",A.cfmo,B.cfmo,signedMoney);
+  t+=row("Cash-on-cash",A.coc,B.coc,function(x){return pct(x);});
+  t+=row("Cap rate",A.cap,B.cap,function(x){return pct(x);});
+  t+=row("DSCR",A.dscr,B.dscr,function(x){return isFinite(x)?x.toFixed(2)+"x":"n/a";});
+  $("cmpBody").innerHTML=t;
+}
+var LSKEY="bedroom-bump-scenarios-v1";
+function readScens(){try{var s=JSON.parse(localStorage.getItem(LSKEY)||"[]");return Array.isArray(s)?s:[];}catch(e){return[];}}
+function writeScens(s){localStorage.setItem(LSKEY,JSON.stringify(s));}
+function renderScens(){
+  var s=readScens();
+  var el=$("scenList");
+  if(!s.length){el.innerHTML='<p style="font-size:.88rem;color:#8a8172;margin:.3rem 0">No saved deals yet. When a property pencils out, park it here.</p>';return;}
+  el.innerHTML=s.map(function(x,i){
+    return '<div class="scen"><div><div class="nm sans">'+escapeHtml(x.name)+'</div><div class="dt sans">'+x.ts+'</div></div>'+
+    '<div class="acts"><button class="btn-ghost sans" data-load="'+i+'">Load</button><button class="btn-ghost sans" data-del="'+i+'">Delete</button></div></div>';
+  }).join("");
+  el.querySelectorAll("[data-load]").forEach(function(b){b.onclick=function(){
+    var x=readScens()[parseInt(b.getAttribute("data-load"),10)];
+    if(!x)return;
+    FIELDS.forEach(function(f){if(x.inputs[f]!==undefined)$(f).value=x.inputs[f];});
+    render();
+  };});
+  el.querySelectorAll("[data-del]").forEach(function(b){b.onclick=function(){
+    var arr=readScens();arr.splice(parseInt(b.getAttribute("data-del"),10),1);writeScens(arr);renderScens();
+  };});
+}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
+$("saveBtn").onclick=function(){
+  var name=$("scenName").value.trim()||("Deal "+(readScens().length+1));
+  var inputs={};FIELDS.forEach(function(f){inputs[f]=$(f).value;});
+  var s=readScens();
+  s.unshift({name:name,ts:new Date().toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"}),inputs:inputs});
+  writeScens(s);$("scenName").value="";renderScens();
+};
+var DEFAULTS={};
+FIELDS.forEach(function(f){DEFAULTS[f]=$(f).value;});
+$("resetBtn").onclick=function(){FIELDS.forEach(function(f){$(f).value=DEFAULTS[f];});render();};
+FIELDS.forEach(function(f){$(f).addEventListener("input",render);});
+renderScens();
+render();
+</script>
+</body>
+</html>
